@@ -1,6 +1,7 @@
 #!/bin/bash
 
 RATE_LIMIT=""
+DRY_RUN=""
 
 # check that the 'ia' tool is available
 if ! command -v ia &> /dev/null
@@ -10,7 +11,7 @@ then
 fi
 
 # parse arguments
-while getopts 'r:i:p:h' opt; do
+while getopts 'r:i:p:dh' opt; do
     case "$opt" in
         r)
             RATE_LIMIT="--limit-rate=$OPTARG"
@@ -21,8 +22,11 @@ while getopts 'r:i:p:h' opt; do
         p)
             PATTERN="--glob=$OPTARG"
             ;;
+        d)
+            DRY_RUN="echo "
+            ;;
         h)
-            echo "Usage: $(basename $0) [-r rate_limit] [-p wildcard_pattern] -i ia_item_id"
+            echo "Usage: $(basename $0) [-r rate_limit] [-p wildcard_pattern] [-d] -i ia_item_id"
             ;;
     esac
 done
@@ -36,5 +40,5 @@ fi
 # get the list of download URLs via the ia tool
 for file in $(ia download --dry-run ${PATTERN} ${ITEM})
 do
-    echo wget --recursive ${RATE_LIMIT} --continue --no-host-directories --cut-dirs=1 $file
+    ${DRY_RUN}wget --recursive ${RATE_LIMIT} --continue --no-host-directories --cut-dirs=1 $file
 done
