@@ -13,8 +13,17 @@ fi
 # parse arguments
 while getopts 'r:i:p:dh' opt; do
     case "$opt" in
-        r)
-            RATE_LIMIT="--limit-rate=$OPTARG"
+        d)
+            DRY_RUN="echo "
+            ;;
+        h)
+            echo "Usage: $(basename $0) [-r rate_limit] [-p wildcard_pattern] [-d] -i ia_item_id"
+            echo " -d = dry run; show the wget commands which would be executed"
+            echo " example rate limits:"
+            echo "   '-r 500k' -> limit to 500 kilobytes/second"
+            echo "   '-r 2M'   -> limit to 2 megabytes/second"
+            echo " example wildcard: '-p *.jpg' to only download jpg files in item"
+            exit 0
             ;;
         i)
             ITEM=$OPTARG
@@ -22,11 +31,8 @@ while getopts 'r:i:p:dh' opt; do
         p)
             PATTERN="--glob=$OPTARG"
             ;;
-        d)
-            DRY_RUN="echo "
-            ;;
-        h)
-            echo "Usage: $(basename $0) [-r rate_limit] [-p wildcard_pattern] [-d] -i ia_item_id"
+        r)
+            RATE_LIMIT="--limit-rate=$OPTARG"
             ;;
     esac
 done
