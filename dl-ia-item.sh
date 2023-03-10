@@ -10,18 +10,19 @@ then
 fi
 
 # parse arguments
-while getopts 'r:i:h' opt; do
+while getopts 'r:i:p:h' opt; do
     case "$opt" in
         r)
             RATE_LIMIT="--limit-rate=$OPTARG"
-            echo $RATE_LIMIT
             ;;
         i)
             ITEM=$OPTARG
-            echo $ITEM
+            ;;
+        p)
+            PATTERN="--glob=$OPTARG"
             ;;
         h)
-            echo "Usage: $(basename $0) [-r rate_limit] -i ia_item_id"
+            echo "Usage: $(basename $0) [-r rate_limit] [-p wildcard_pattern] -i ia_item_id"
             ;;
     esac
 done
@@ -33,7 +34,7 @@ if [ -z "${ITEM}" ]; then
 fi
 
 # get the list of download URLs via the ia tool
-for file in $(ia download --dry-run ${ITEM})
+for file in $(ia download --dry-run ${PATTERN} ${ITEM})
 do
-    wget --recursive ${RATE_LIMIT} --continue --no-host-directories --cut-dirs=1 $file
+    echo wget --recursive ${RATE_LIMIT} --continue --no-host-directories --cut-dirs=1 $file
 done
