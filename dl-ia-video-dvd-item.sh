@@ -17,11 +17,10 @@ while getopts 'r:i:dh' opt; do
             DRY_RUN="echo "
             ;;
         h)
-            echo "Usage: $(basename $0) [-r rate_limit] [-p wildcard_pattern] [-d] -i ia_item_id"
+            echo "Usage: $(basename $0) [-r rate_limit] [-d] -i ia_item_id"
             echo " example rate limits:"
             echo "   '-r 500k' -> limit to 500 kilobytes/second"
             echo "   '-r 2M'   -> limit to 2 megabytes/second"
-            echo " example wildcard: '-p *.jpg' to only download jpg files in item"
             exit 0
             ;;
         i)
@@ -40,9 +39,15 @@ if [ -z "${ITEM}" ]; then
 fi
 
 # get the list of download URLs via the ia tool
-for file in $(ia download --dry-run ${PATTERN} ${ITEM})
+for file in $(ia download --dry-run ${ITEM})
 do
-    if [[ $file != *.mp4 ]] && [[ $file != *.jpg ]]; then
+    # derive the filename's extension from the URL and make sure it's not
+    # a pre-generated video or a JPG thumbnail
+    filename=$(basename -- $file)
+    extension=${filename##*.}
+    if ! [[ "$extension" =~ ^(jpg|mp4|ogv|gif)$ ]]; then
         ${DRY_RUN}wget --recursive ${RATE_LIMIT} --continue --no-host-directories --cut-dirs=1 $file
+    else
+        echo "(skipping $file)"
     fi
 done
