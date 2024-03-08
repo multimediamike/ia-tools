@@ -18,6 +18,7 @@ while getopts 'r:i:dh' opt; do
             ;;
         h)
             echo "Usage: $(basename $0) [-r rate_limit] [-d] -i ia_item_id"
+            echo " -d = dry run; show the wget commands which would be executed"
             echo " example rate limits:"
             echo "   '-r 500k' -> limit to 500 kilobytes/second"
             echo "   '-r 2M'   -> limit to 2 megabytes/second"
